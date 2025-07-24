@@ -4,13 +4,12 @@ import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBcxXjwPntb_xNdGzeVv4e2FJw4jvo7-tU",
-  authDomain: "socialme-c4c81.firebaseapp.com",
-  projectId: "socialme-c4c81",
-  storageBucket: "socialme-c4c81.firebasestorage.app",
-  messagingSenderId: "270073741",
-  appId: "1:270073741:web:6be439ae31052e3aa747c4",
-  measurementId: "G-BXZ6PF7CHG",
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
 };
 
 const app = initializeApp(firebaseConfig);
