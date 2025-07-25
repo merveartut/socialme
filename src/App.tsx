@@ -1,9 +1,5 @@
 import { useEffect, useState } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
-import "./App.css";
 import { ChatPage } from "./pages/ChatPage";
-import { Auth } from "./components/Auth";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth, db } from "./firebase";
 import { AuthPage } from "./pages/AuthPage";

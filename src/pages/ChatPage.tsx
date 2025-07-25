@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Avatar from "@mui/material/Avatar";
 import { BsThreeDots } from "react-icons/bs";
 import { BsFillCameraVideoFill } from "react-icons/bs";
@@ -16,6 +16,13 @@ import {
 } from "firebase/firestore";
 import { auth, db } from "../firebase";
 
+interface Message {
+  id: string;
+  text: string;
+  from: string;
+  createdAt?: any;
+}
+
 export const ChatPage = ({ currentUser }: { currentUser: any }) => {
   const [usersList, setUsersList] = useState<any[]>([]);
   const [selectedUser, setSelectedUser] = useState({
@@ -24,7 +31,7 @@ export const ChatPage = ({ currentUser }: { currentUser: any }) => {
   });
   console.log(currentUser);
 
-  const [messages, setMessages] = useState([]);
+  const [messages, setMessages] = useState<Message[]>([]);
 
   const [inputMessage, setInputMessage] = useState("");
 
@@ -45,10 +52,13 @@ export const ChatPage = ({ currentUser }: { currentUser: any }) => {
     const q = query(collection(db, "messages"), orderBy("createdAt"));
     const unsub = onSnapshot(q, (snapshot) => {
       setMessages(
-        snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }))
+        snapshot.docs.map((doc) => {
+          const data = doc.data() as Omit<Message, "id">;
+          return {
+            id: doc.id,
+            ...data,
+          };
+        })
       );
     });
 
@@ -59,7 +69,7 @@ export const ChatPage = ({ currentUser }: { currentUser: any }) => {
     if (!inputMessage.trim()) return;
     await addDoc(collection(db, "messages"), {
       text: inputMessage,
-      from: auth.currentUser.email,
+      from: auth.currentUser?.email ?? "unknown",
       createdAt: serverTimestamp(),
     });
     setInputMessage("");

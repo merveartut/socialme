@@ -1,15 +1,16 @@
 // src/components/Auth.tsx
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   GoogleAuthProvider,
   signInWithPopup,
   signOut,
   onAuthStateChanged,
 } from "firebase/auth";
+import type { User } from "firebase/auth";
 import { auth } from "../firebase";
 
-export const Auth = ({ onUser }: any) => {
-  const [user, setUser] = useState(null);
+export const Auth = ({ onUser }: { onUser: (user: User | null) => void }) => {
+  const [user, setUser] = useState<User | null>(null);
 
   const provider = new GoogleAuthProvider();
 
