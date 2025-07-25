@@ -29,7 +29,6 @@ export const ChatPage = ({ currentUser }: { currentUser: any }) => {
     name: "Ali Veli",
     desc: "Lorem ipsum, dolor sit amet consectetur adipisicing elit.",
   });
-  console.log(currentUser);
 
   const [messages, setMessages] = useState<Message[]>([]);
 
@@ -47,6 +46,7 @@ export const ChatPage = ({ currentUser }: { currentUser: any }) => {
 
     return () => unsub();
   }, [currentUser]);
+  console.log(usersList);
 
   useEffect(() => {
     const q = query(collection(db, "messages"), orderBy("createdAt"));
