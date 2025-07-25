@@ -5,6 +5,16 @@
     { "path": "./tsconfig.node.json" }
   ],
   "compilerOptions": {
-    "types": ["node"]
+    "types": [
+      "node",
+      "@babel/core",
+      "@babel/generator",
+      "@babel/template",
+      "@babel/traverse",
+      "estree",
+      "json-schema",
+      "parse-json",
+      "prop-types"
+    ]
   }
 }
