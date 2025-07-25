@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { ChatPage } from "./pages/ChatPage";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth, db } from "./firebase";
+import "./App.css";
 import { AuthPage } from "./pages/AuthPage";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 
