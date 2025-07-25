@@ -8,8 +8,6 @@ import {
 } from "firebase/auth";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 
-const provider = new GoogleAuthProvider();
-
 export const AuthPage = () => {
   const [isRegister, setIsRegister] = useState(false);
   const [email, setEmail] = useState("");
