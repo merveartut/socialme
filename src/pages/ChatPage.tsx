@@ -20,7 +20,7 @@ import {
   onSnapshot,
 } from "firebase/firestore";
 import { db } from "../firebase";
-import { getConversationId } from "../hooks/GetConversationId";
+import { getConversationId } from "../hooks/getConversationId";
 
 interface Message {
   id: string;
