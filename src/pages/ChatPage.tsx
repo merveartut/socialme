@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import Avatar from "@mui/material/Avatar";
+import { Menu, MenuItem } from "@mui/material";
+import { Drawer, IconButton } from "@mui/material";
 import { BsThreeDots } from "react-icons/bs";
+import { MdMenu } from "react-icons/md";
 import { BsFillCameraVideoFill } from "react-icons/bs";
 import { BiEdit } from "react-icons/bi";
 import { SearchInput } from "../components/SearchInput";
@@ -19,7 +22,8 @@ import {
   orderBy,
   onSnapshot,
 } from "firebase/firestore";
-import { db } from "../firebase";
+import { auth, db } from "../firebase";
+import { signOut } from "firebase/auth";
 import { getConversationId } from "../hooks/getConversationId";
 
 interface Message {
@@ -54,6 +58,24 @@ export const ChatPage = ({ currentUser }: { currentUser: any }) => {
 
   const [searchUser, setSearchUser] = useState("");
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const toggleDrawer = () => setMobileOpen(!mobileOpen);
+
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const open = Boolean(anchorEl);
+  const handleMenuClick = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleLogout = async () => {
+    await signOut(auth);
+    // Optionally redirect or refresh after logout
+    window.location.reload(); // Or use your router: router.push('/login');
+  };
 
   useEffect(() => {
     const q = query(collection(db, "users"));
@@ -132,9 +154,17 @@ export const ChatPage = ({ currentUser }: { currentUser: any }) => {
 
   return (
     <div
-      className="w-full h-screen bg-cover bg-center p-4 md:p-16"
+      className="w-full h-screen bg-cover bg-center p-4 md:p-16 pt-16"
       style={{ backgroundImage: `url(${chatBg})` }}
     >
+      {/* Mobile Navbar */}
+      <div className="md:hidden fixed top-0 left-0 right-0 h-14 px-4 backdrop-blur-md bg-zinc-600/70 backdrop-saturate-150 flex items-center justify-between z-50 shadow-md">
+        <IconButton onClick={toggleDrawer}>
+          <MdMenu className="text-white" size={24} />
+        </IconButton>
+        <Avatar src={currentUser.photoURL} sx={{ width: 32, height: 32 }} />
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-12 h-full backdrop-blur-md bg-zinc-600/70 backdrop-saturate-150 rounded-lg overflow-hidden">
         {/* Sidebar */}
         <div className="hidden md:block md:col-span-3 p-4 flex flex-col gap-6 border-r overflow-y-auto">
@@ -151,9 +181,21 @@ export const ChatPage = ({ currentUser }: { currentUser: any }) => {
               </span>
             </div>
             <div className="flex flex-row gap-2">
-              <BsThreeDots size={20} color="#ffffff" />
+              <button onClick={handleMenuClick}>
+                <BsThreeDots size={20} color="#ffffff" />
+              </button>
               <BsFillCameraVideoFill size={20} color="#ffffff" />
               <BiEdit size={20} color="#ffffff" />
+
+              <Menu
+                anchorEl={anchorEl}
+                open={open}
+                onClose={handleClose}
+                anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+                transformOrigin={{ vertical: "top", horizontal: "left" }}
+              >
+                <MenuItem onClick={handleLogout}>Logout</MenuItem>
+              </Menu>
             </div>
           </div>
 
@@ -306,6 +348,40 @@ export const ChatPage = ({ currentUser }: { currentUser: any }) => {
           Right Panel
         </div>
       </div>
+
+      <Drawer anchor="left" open={mobileOpen} onClose={toggleDrawer}>
+        <div className="w-72 p-4 flex flex-col h-full bg-zinc-800 text-white">
+          {/* Current user */}
+          <div className="flex items-center gap-3 mb-4">
+            <Avatar src={currentUser.photoURL} />
+            <div className="text-white font-medium">
+              {currentUser.displayName}
+            </div>
+          </div>
+
+          {/* Search */}
+          <SearchInput value={searchUser} onChange={setSearchUser} />
+
+          {/* User list */}
+          <div className="mt-4 overflow-y-auto flex-1">
+            {usersList.map((user) => (
+              <div
+                key={user.uid}
+                className="p-2 flex items-center gap-3 cursor-pointer hover:bg-zinc-600 rounded transition-all"
+                onClick={() => {
+                  setSelectedUser(user);
+                  toggleDrawer();
+                }}
+              >
+                <Avatar src={user.photoURL || ""}>
+                  {user.displayName?.[0]}
+                </Avatar>
+                <span className="text-sm truncate">{user.displayName}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </Drawer>
     </div>
   );
 };
