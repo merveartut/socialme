@@ -1,6 +1,12 @@
 import { FaSearch } from "react-icons/fa";
 
-export const SearchInput = () => {
+export const SearchInput = ({
+  value,
+  onChange,
+}: {
+  value: any;
+  onChange: any;
+}) => {
   return (
     <div className="p-4">
       <div className="relative">
@@ -10,6 +16,8 @@ export const SearchInput = () => {
         <input
           id="search"
           type="text"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
           className="bg-zinc-600 text-white rounded-md h-10 w-full pl-10 pr-3 focus:outline-none"
           placeholder="Search..."
         />
