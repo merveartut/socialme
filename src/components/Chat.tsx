@@ -12,7 +12,7 @@ import {
 } from "firebase/firestore";
 import { db, storage } from "../firebase";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
-import { Picker } from "emoji-mart";
+import Picker from "@emoji-mart/react";
 import data from "@emoji-mart/data";
 
 interface Message {

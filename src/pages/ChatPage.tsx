@@ -3,7 +3,6 @@ import Avatar from "@mui/material/Avatar";
 import { Menu, MenuItem } from "@mui/material";
 import { IconButton } from "@mui/material";
 import { BsThreeDots } from "react-icons/bs";
-import { MdMenu } from "react-icons/md";
 import { BsFillCameraVideoFill } from "react-icons/bs";
 import { BiEdit } from "react-icons/bi";
 import { SearchInput } from "../components/SearchInput";
