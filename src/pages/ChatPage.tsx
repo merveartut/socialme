@@ -14,16 +14,6 @@ import { auth, db } from "../firebase";
 import { signOut } from "firebase/auth";
 import { Chat } from "../components/Chat";
 
-interface Message {
-  id: string;
-  text: string;
-  from: string;
-  createdAt?: any;
-  fileUrl?: any;
-  fileType?: any;
-  fileName?: any;
-}
-
 interface User {
   uid: string;
   email: string;
