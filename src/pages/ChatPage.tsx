@@ -9,10 +9,18 @@ import { SearchInput } from "../components/SearchInput";
 import chatBg from "../../public/chat-bg.jpg";
 import { IoChevronBackCircleOutline } from "react-icons/io5";
 
-import { collection, query, onSnapshot } from "firebase/firestore";
+import {
+  collection,
+  query,
+  onSnapshot,
+  orderBy,
+  limit,
+  getDocs,
+} from "firebase/firestore";
 import { auth, db } from "../firebase";
 import { signOut } from "firebase/auth";
 import { Chat } from "../components/Chat";
+import { getConversationId } from "../hooks/getConversationId";
 
 interface User {
   uid: string;
@@ -45,18 +53,36 @@ export const ChatPage = ({ currentUser }: { currentUser: any }) => {
 
   useEffect(() => {
     const q = query(collection(db, "users"));
-    const unsub = onSnapshot(q, (snapshot) => {
-      setUsersList(
-        snapshot.docs
-          .map((doc) => doc.data())
-          .filter((user) => {
-            return (
-              user.email !== currentUser.email &&
-              user.displayName.toLowerCase().includes(searchUser.toLowerCase())
-            );
-          })
+    const unsub = onSnapshot(q, async (snapshot) => {
+      const users = await Promise.all(
+        snapshot.docs.map(async (doc) => {
+          const user = doc.data();
+          if (user.email === currentUser.email) return null;
+
+          const conversationId = getConversationId(currentUser.uid, user.uid);
+
+          const messagesRef = collection(
+            db,
+            "conversations",
+            conversationId,
+            "messages"
+          );
+          const lastMessageQuery = query(
+            messagesRef,
+            orderBy("createdAt", "desc"),
+            limit(1)
+          );
+          const lastMessageSnap = await getDocs(lastMessageQuery);
+
+          const lastMessage = lastMessageSnap.docs[0]?.data()?.text || "";
+
+          return { ...user, lastMessage };
+        })
       );
+
+      setUsersList(users.filter(Boolean));
     });
+
     return () => unsub();
   }, [currentUser, searchUser]);
 
@@ -76,7 +102,22 @@ export const ChatPage = ({ currentUser }: { currentUser: any }) => {
             <IoChevronBackCircleOutline className="text-white" size={24} />
           </IconButton>
         )}
-        <Avatar src={currentUser.photoURL} sx={{ width: 32, height: 32 }} />
+        <Avatar
+          src={currentUser.photoURL}
+          sx={{ width: 32, height: 32 }}
+          onClick={handleMenuClick}
+        />
+        <Menu
+          anchorEl={anchorEl}
+          open={open}
+          onClose={handleClose}
+          anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+          transformOrigin={{ vertical: "top", horizontal: "left" }}
+        >
+          <MenuItem onClick={handleLogout} className="h-8">
+            Logout
+          </MenuItem>
+        </Menu>
       </div>
 
       <div className="grid h-full grid-cols-1 md:grid-cols-12 backdrop-blur-md bg-zinc-600/70 backdrop-saturate-150 rounded-lg overflow-hidden">
@@ -145,7 +186,10 @@ export const ChatPage = ({ currentUser }: { currentUser: any }) => {
         {/* Chat Area */}
         {selectedUser || window.innerWidth >= 768 ? (
           <div className="col-span-1 md:col-span-9">
-            <Chat currentUser={currentUser} selectedUser={selectedUser} />
+            <Chat
+              currentUser={currentUser}
+              selectedUser={selectedUser || usersList[0]}
+            />
           </div>
         ) : (
           <div className="p-4 flex flex-col gap-6 border-r overflow-y-auto">
@@ -168,9 +212,16 @@ export const ChatPage = ({ currentUser }: { currentUser: any }) => {
                   >
                     {user.displayName?.[0]}
                   </Avatar>
-                  <span className="text-white text-sm truncate">
-                    {user.displayName || user.email}
-                  </span>
+                  <div className="flex flex-col">
+                    <span className="text-white text-sm truncate">
+                      {user.displayName || user.email}
+                    </span>
+                    <div>
+                      <p className="text-white text-xs truncate opacity-70">
+                        {user.lastMessage || "No messages yet"}
+                      </p>
+                    </div>
+                  </div>
                 </div>
               ))}
             </div>
